@@ -149,6 +149,36 @@ h1 {
   border-bottom:1px solid rgba(0,255,255,0.25);
   margin-bottom:10px;
 }
+/* FULLSCREEN LOADER */
+.loader-bg {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,15,25,0.95);
+  display:flex; justify-content:center; align-items:center;
+  visibility:hidden; opacity:0; transition:0.3s;
+  z-index:999999;
+}
+
+.loader-bg.active {
+  visibility:visible; opacity:1;
+}
+
+/* SPINNER NEON */
+.neon-loader {
+  width:65px; height:65px;
+  border:5px solid rgba(0,255,255,0.2);
+  border-top:5px solid #00eaff;
+  border-radius:50%;
+  animation:spin 0.9s linear infinite, glow 1.3s ease-in-out infinite alternate;
+}
+
+@keyframes spin {
+  to { transform:rotate(360deg); }
+}
+
+@keyframes glow {
+  0% { box-shadow:0 0 10px #00eaff; }
+  100% { box-shadow:0 0 25px #00eaff; }
+}
 
 
 </style>
@@ -175,7 +205,8 @@ h1 {
 <main>
   <h1>Monitoring & Control</h1>
   <div class="cyber-line"></div>
-  <a href="dashboard.html" class="btn-neon">Masuk ke Dashboard</a>
+  <a onclick="goDashboard()" class="btn-neon">Masuk ke Dashboard</a>
+
 </main>
 
 <footer>© 2025 Smart IoT Futuristic UI</footer>
@@ -193,7 +224,16 @@ function toggleMenu() {
     overlay.classList.add("active");
   }
 }
+function goDashboard() {
+  document.getElementById("loader").classList.add("active");
+  setTimeout(() => {
+    window.location.href = "dasboard.html";
+  }, 1600); // durasi loading 1.6 detik
+}
 </script>
+<div class="loader-bg" id="loader">
+  <div class="neon-loader"></div>
+</div>
 
 </body>
 </html>
