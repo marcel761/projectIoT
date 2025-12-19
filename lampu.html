@@ -24,13 +24,24 @@ main{margin-top:60px;padding:25px;flex:1;display:flex;flex-direction:column;just
 .lamp-img{width:160px;margin-bottom:20px;transition:.3s}
 .lamp-on{filter:drop-shadow(0 0 15px #ffeb3b) brightness(1.3)}
 footer{height:45px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:.75;background:rgba(15,30,60,.6)}
+.esp-online {
+  border-color: #00ff88;
+  color: #00ff88;
+}
+
+.esp-offline {
+  border-color: #ff5252;
+  color: #ff5252;
+  opacity: 0.8;
+}
+
 </style>
 </head>
 
 <body>
 <header>
 <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-LAMPU MQTT
+Kontrol Lampu
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -40,6 +51,9 @@ LAMPU MQTT
 
 <main>
 <img id="lampIcon" class="lamp-img" src="lampu.png">
+<div id="espStatus" class="status-box">
+  ESP: Mengecek koneksi...
+</div>
 <div id="statusLampu" class="status-box">Status: Menghubungkan MQTT...</div>
 <div id="modeLampu" class="status-box">Mode: MANUAL</div>
 <button class="btn-control" onclick="lampuOn()">NYALAKAN</button>
@@ -69,13 +83,49 @@ const client = mqtt.connect(broker);
 
 client.on('connect',()=>{
  document.getElementById('statusLampu').innerText='Status: MQTT Terhubung';
+
  client.subscribe('iot/lampu/status');
  client.subscribe('iot/lampu/modeStatus');
  client.subscribe('iot/lampu/autoStatus');
+ client.subscribe('iot/lampu/espStatus');
+
+ // minta status awal
+ client.publish('iot/lampu/requestStatus','REQ');
 });
+
+
 
 client.on('message',(topic,message)=>{
  const msg = message.toString();
+
+ if(topic === 'iot/lampu/espStatus'){
+  const espBox = document.getElementById('espStatus');
+
+  if(msg === 'ONLINE'){
+    espBox.innerText = 'ESP: ONLINE';
+    espBox.classList.remove('esp-offline');
+    espBox.classList.add('esp-online');
+
+    enableButtons(true);
+
+    // minta status lampu setelah ESP online
+    client.publish('iot/lampu/requestStatus','REQ');
+  }
+
+  if(msg === 'OFFLINE'){
+    espBox.innerText = 'ESP: OFFLINE';
+    espBox.classList.remove('esp-online');
+    espBox.classList.add('esp-offline');
+
+    document.getElementById('statusLampu').innerText =
+      'Status: ESP tidak terhubung';
+
+    document.getElementById('lampIcon').classList.remove('lamp-on');
+
+    enableButtons(false);
+  }
+}
+
 
  if(topic==='iot/lampu/status'){
   if(msg==='ON'){
@@ -116,7 +166,21 @@ function lampuOff(){
 }
 function setAuto(){
  client.publish('iot/lampu/mode','AUTO');
+
+ // ⬇️ minta kondisi langsung (biar status update)
+ setTimeout(()=>{
+   client.publish('iot/lampu/requestStatus','REQ');
+ },300);
 }
+
+function enableButtons(enable){
+  document.querySelectorAll('.btn-control').forEach(btn=>{
+    btn.disabled = !enable;
+    btn.style.opacity = enable ? '1' : '0.4';
+    btn.style.cursor = enable ? 'pointer' : 'not-allowed';
+  });
+}
+enableButtons(false);
 
 
 </script>
