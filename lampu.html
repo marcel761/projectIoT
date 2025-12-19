@@ -71,6 +71,7 @@ client.on('connect',()=>{
  document.getElementById('statusLampu').innerText='Status: MQTT Terhubung';
  client.subscribe('iot/lampu/status');
  client.subscribe('iot/lampu/modeStatus');
+ client.subscribe('iot/lampu/autoStatus');
 });
 
 client.on('message',(topic,message)=>{
@@ -90,6 +91,19 @@ client.on('message',(topic,message)=>{
  if(topic==='iot/lampu/modeStatus'){
   document.getElementById('modeLampu').innerText='Mode: '+msg;
  }
+ if(topic === 'iot/lampu/autoStatus'){
+  if(msg === 'GELAP_ON'){
+    document.getElementById('statusLampu').innerText =
+      'Status: Kondisi gelap, lampu menyala';
+    document.getElementById('lampIcon').classList.add('lamp-on');
+  }
+
+  if(msg === 'TERANG_OFF'){
+    document.getElementById('statusLampu').innerText =
+      'Status: Kondisi terang, lampu mati';
+    document.getElementById('lampIcon').classList.remove('lamp-on');
+  }
+}
 });
 
 function lampuOn(){
