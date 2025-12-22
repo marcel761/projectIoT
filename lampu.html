@@ -290,6 +290,18 @@ client.on('message',(topic,message)=>{
       'Status: Kondisi terang, lampu mati';
     document.getElementById('lampIcon').classList.remove('lamp-on');
   }
+   // ===== PIR (DISAMAKAN DENGAN LDR) =====
+  if(msg === 'PIR_ON'){
+    document.getElementById('statusLampu').innerText =
+      'Status: Ada gerakan, lampu menyala';
+    document.getElementById('lampIcon').classList.add('lamp-on');
+  }
+
+  if(msg === 'PIR_TIMEOUT_OFF'){
+    document.getElementById('statusLampu').innerText =
+      'Status: Tidak ada gerakan (30 detik), lampu mati';
+    document.getElementById('lampIcon').classList.remove('lamp-on');
+  }
 }
 });
 
