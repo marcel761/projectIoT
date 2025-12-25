@@ -141,6 +141,77 @@ footer {
   box-shadow: 0 -2px 8px rgba(0,255,255,0.12);
   z-index: 20;
 }
+
+/* ROW */
+.alarm-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* TOGGLE */
+.toggle-wrap {
+  position: relative;
+  width: 42px;
+  height: 22px;
+}
+
+.toggle-wrap input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #555;
+  border-radius: 20px;
+  transition: 0.3s;
+  box-shadow: 0 0 6px rgba(0,0,0,0.4);
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 2px;
+  top: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+/* ON */
+.toggle-wrap input:checked + .toggle-slider {
+  background: #00eaff;
+  box-shadow: 0 0 12px #00eaff;
+}
+
+.toggle-wrap input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* LABEL */
+.alarm-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #00eaff;
+}
+
+/* STATUS */
+.alarm-status {
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.alarm-status.off { color: #ff4d4d; }
+.alarm-status.on  { color: #00ff9c; }
+
 </style>
 </head>
 
@@ -186,15 +257,28 @@ footer {
   <label>Kegiatan:</label>
   <select id="preset">
     <option value="">Pilih Kegiatan</option>
-    <option>Masuk Pelajaran</option>
-    <option>Pergantian Jam</option>
+    <option>Masuk </option>
+    <option>Pergantian Jam Pelajaran</option>
     <option>Istirahat</option>
     <option>Pulang Sekolah</option>
-    <option>Upacara</option>
+
   </select>
   <input type="text" id="namaKegiatan" placeholder="Atau ketik sendiri...">
 
   <button class="btn-add" onclick="tambahJadwal()">+ Tambahkan Jadwal</button>
+  <div class="alarm-row">
+  <label class="toggle-wrap">
+    <input type="checkbox" id="mq2Toggle" onchange="toggleMQ2(this)">
+    <span class="toggle-slider"></span>
+  </label>
+
+  <span class="alarm-label">Alarm Darurat</span>
+</div>
+
+<div id="alarmStatus" class="alarm-status off">
+  Status: NONAKTIF
+</div>
+
 </div>
 
 <!-- TABLE -->
@@ -305,3 +389,4 @@ function tampilkanData() {
 
 </body>
 </html>
+
