@@ -172,165 +172,25 @@ footer{
   opacity:.8;
 }
 
-.wifi-icon{
-  position:absolute;
-  right:15px;
-  cursor:pointer;
-  font-size:22px;
-  color:#00eaff;
-  transition:.3s;
-}
-
-.wifi-icon:hover{
-  color:#00ff88;
-  transform:scale(1.2);
-}
-
-/* ===== MODAL ===== */
-.modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:20;
-}
-
-.modal-box{
-  background:rgba(15,30,60,.95);
-  padding:25px 30px;
-  border-radius:14px;
-  text-align:center;
-  width:280px;
-  border:2px solid #00eaff;
-  animation:pop .3s ease;
-}
-
-.modal-box h3{
-  margin-bottom:10px;
-  color:#00eaff;
-}
-
-.modal-box p{
-  font-size:14px;
-  opacity:.85;
-  margin-bottom:20px;
-}
-
-.modal-btn{
-  display:flex;
-  justify-content:space-between;
-}
-
-.modal-btn button{
-  flex:1;
-  margin:0 5px;
-  padding:10px;
-  border-radius:8px;
-  border:none;
-  font-weight:600;
-  cursor:pointer;
-}
-
-.modal-btn .danger{
-  background:#ff5252;
-  color:white;
-}
-
-.modal-btn button:not(.danger){
-  background:#444;
-  color:white;
-}
-
-@keyframes pop{
-  from{transform:scale(.8);opacity:0}
-  to{transform:scale(1);opacity:1}
-}
-
-.modal-box input{
-  width:100%;
-  padding:10px;
-  margin:15px 0;
-  border-radius:8px;
-  border:none;
-  text-align:center;
-  font-size:16px;
-  outline:none;
-}
-
-.pin-error{
-  color:#ff5252;
-  font-size:13px;
-  margin-top:10px;
-  display:none;
-}
-
-
-
 </style>
 </head>
 
 <body>
 <header>
-  <div class="hamburger" onclick="toggleMenu()">
-    <span></span><span></span><span></span>
-  </div>
-
-  Kontrol Lampu
-
-  <!-- ICON WIFI -->
-  <div class="wifi-icon" onclick="resetWiFi()" title="Ganti WiFi">
-    📶
-  </div>
+<div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+Kontrol Lampu
 </header>
-
 
 <div class="sidebar" id="sidebar">
 <a href="#">Kontrol Lampu</a>
 </div>
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-<!-- ===== WIFI RESET MODAL ===== -->
-<div id="wifiModal" class="modal">
-  <div class="modal-box">
-    <h3>Ganti WiFi ESP</h3>
-    <p>Masukkan PIN untuk melanjutkan</p>
-
-    <input
-      type="password"
-      id="wifiPin"
-      placeholder="Masukkan PIN"
-      maxlength="6"
-    >
-
-    <div class="modal-btn">
-      <button onclick="closeWifiModal()">Batal</button>
-      <button class="danger" onclick="confirmResetWiFi()">Lanjut</button>
-    </div>
-
-    <div id="pinError" class="pin-error">
-      PIN salah!
-    </div>
-  </div>
-</div>
-
-
 <main>
 <img id="lampIcon" class="lamp-img" src="lampu.png">
 <div id="espStatus" class="status-box">
   ESP: Mengecek koneksi...
 </div>
-<div
-  id="wifiWaiting"
-  class="status-box"
-  style="display:none; border-color:#ffaa00; color:#ffaa00;">
-  ESP menunggu WiFi baru...
-</div>
-
 <div id="statusLampu" class="status-box">Status: Menghubungkan MQTT...</div>
 <div id="modeLampu" class="status-box">Mode: MANUAL</div>
 <button class="btn-control" onclick="lampuOn()">NYALAKAN</button>
@@ -339,12 +199,9 @@ footer{
 
 </main>
 
-<footer>© 2025 Smart IoT MQTT</footer>
+<footer>© RIDHO SUDRAJAT</footer>
 
 <script>
-
-const WIFI_RESET_PIN = "1234"; // GANTI PIN SESUKA KAMU
-
 function toggleMenu(){
  let s=document.getElementById('sidebar');
  let o=document.getElementById('overlay');
@@ -380,7 +237,6 @@ client.on('message',(topic,message)=>{
 
  if(topic === 'iot/lampu/espStatus'){
   const espBox = document.getElementById('espStatus');
-  
 
   if(msg === 'ONLINE'){
     espBox.innerText = 'ESP: ONLINE';
@@ -475,38 +331,6 @@ function enableButtons(enable){
 }
 enableButtons(false);
 
-function resetWiFi(){
-  document.getElementById('wifiPin').value = '';
-  document.getElementById('pinError').style.display = 'none';
-  document.getElementById('wifiModal').style.display = 'flex';
-}
-
-function closeWifiModal(){
-  document.getElementById('wifiModal').style.display = 'none';
-}
-
-function confirmResetWiFi(){
-  const pin = document.getElementById('wifiPin').value;
-
-  if(pin !== WIFI_RESET_PIN){
-    document.getElementById('pinError').style.display = 'block';
-    return;
-  }
-
-  client.publish('iot/lampu/resetWiFi','RESET');
-
-  document.getElementById('statusLampu').innerText =
-    'Status: Mengganti WiFi...';
-
-  document.getElementById('espStatus').innerText =
-    'ESP: RESTARTING';
-
-  document.getElementById('wifiWaiting').style.display = 'block';
-
-  enableButtons(false);
-
-  closeWifiModal();
-}
 
 </script>
 </body>
