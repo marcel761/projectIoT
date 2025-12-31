@@ -251,6 +251,25 @@ footer{
   to{transform:scale(1);opacity:1}
 }
 
+.modal-box input{
+  width:100%;
+  padding:10px;
+  margin:15px 0;
+  border-radius:8px;
+  border:none;
+  text-align:center;
+  font-size:16px;
+  outline:none;
+}
+
+.pin-error{
+  color:#ff5252;
+  font-size:13px;
+  margin-top:10px;
+  display:none;
+}
+
+
 
 </style>
 </head>
@@ -278,20 +297,40 @@ footer{
 <!-- ===== WIFI RESET MODAL ===== -->
 <div id="wifiModal" class="modal">
   <div class="modal-box">
-    <h3>Ganti WiFi ESP?</h3>
-    <p>ESP akan masuk mode konfigurasi WiFi.</p>
+    <h3>Ganti WiFi ESP</h3>
+    <p>Masukkan PIN untuk melanjutkan</p>
+
+    <input
+      type="password"
+      id="wifiPin"
+      placeholder="Masukkan PIN"
+      maxlength="6"
+    >
+
     <div class="modal-btn">
       <button onclick="closeWifiModal()">Batal</button>
       <button class="danger" onclick="confirmResetWiFi()">Lanjut</button>
     </div>
+
+    <div id="pinError" class="pin-error">
+      PIN salah!
+    </div>
   </div>
 </div>
+
 
 <main>
 <img id="lampIcon" class="lamp-img" src="lampu.png">
 <div id="espStatus" class="status-box">
   ESP: Mengecek koneksi...
 </div>
+<div
+  id="wifiWaiting"
+  class="status-box"
+  style="display:none; border-color:#ffaa00; color:#ffaa00;">
+  ESP menunggu WiFi baru...
+</div>
+
 <div id="statusLampu" class="status-box">Status: Menghubungkan MQTT...</div>
 <div id="modeLampu" class="status-box">Mode: MANUAL</div>
 <button class="btn-control" onclick="lampuOn()">NYALAKAN</button>
@@ -303,6 +342,9 @@ footer{
 <footer>© 2025 Smart IoT MQTT</footer>
 
 <script>
+
+const WIFI_RESET_PIN = "1234"; // GANTI PIN SESUKA KAMU
+
 function toggleMenu(){
  let s=document.getElementById('sidebar');
  let o=document.getElementById('overlay');
@@ -338,6 +380,7 @@ client.on('message',(topic,message)=>{
 
  if(topic === 'iot/lampu/espStatus'){
   const espBox = document.getElementById('espStatus');
+  
 
   if(msg === 'ONLINE'){
     espBox.innerText = 'ESP: ONLINE';
@@ -433,6 +476,8 @@ function enableButtons(enable){
 enableButtons(false);
 
 function resetWiFi(){
+  document.getElementById('wifiPin').value = '';
+  document.getElementById('pinError').style.display = 'none';
   document.getElementById('wifiModal').style.display = 'flex';
 }
 
@@ -441,6 +486,13 @@ function closeWifiModal(){
 }
 
 function confirmResetWiFi(){
+  const pin = document.getElementById('wifiPin').value;
+
+  if(pin !== WIFI_RESET_PIN){
+    document.getElementById('pinError').style.display = 'block';
+    return;
+  }
+
   client.publish('iot/lampu/resetWiFi','RESET');
 
   document.getElementById('statusLampu').innerText =
@@ -448,6 +500,10 @@ function confirmResetWiFi(){
 
   document.getElementById('espStatus').innerText =
     'ESP: RESTARTING';
+
+  document.getElementById('wifiWaiting').style.display = 'block';
+
+  enableButtons(false);
 
   closeWifiModal();
 }
