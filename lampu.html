@@ -171,6 +171,19 @@ footer{
   color:#ff5252;
   opacity:.8;
 }
+.wifi-icon{
+  position:absolute;
+  right:15px;
+  cursor:pointer;
+  font-size:22px;
+  color:#00eaff;
+  transition:.3s;
+}
+
+.wifi-icon:hover{
+  color:#ff5252;
+  transform:scale(1.15);
+}
 
 </style>
 </head>
@@ -179,6 +192,10 @@ footer{
 <header>
 <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
 Kontrol Lampu
+<!-- ICON WIFI -->
+  <div class="wifi-icon" onclick="resetWiFi()" title="Reset WiFi ESP">
+    📶
+  </div>
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -202,6 +219,10 @@ Kontrol Lampu
 <footer>© RIDHO SUDRAJAT</footer>
 
 <script>
+
+let autoAktif = false;
+
+
 function toggleMenu(){
  let s=document.getElementById('sidebar');
  let o=document.getElementById('overlay');
@@ -277,7 +298,10 @@ client.on('message',(topic,message)=>{
 
  if(topic==='iot/lampu/modeStatus'){
   document.getElementById('modeLampu').innerText='Mode: '+msg;
- }
+  autoAktif = (msg === 'AUTO');
+  updateAutoButton();
+}
+
  if(topic === 'iot/lampu/autoStatus'){
   if(msg === 'GELAP_ON'){
     document.getElementById('statusLampu').innerText =
@@ -313,14 +337,36 @@ function lampuOff(){
  client.publish('iot/lampu/kontrol','OFF');
  document.getElementById('modeLampu').innerText='Mode: MANUAL';
 }
-function setAuto(){
- client.publish('iot/lampu/mode','AUTO');
 
- // ⬇️ minta kondisi langsung (biar status update)
- setTimeout(()=>{
-   client.publish('iot/lampu/requestStatus','REQ');
- },300);
+function setAuto(){
+  if(!autoAktif){
+    client.publish('iot/lampu/mode','AUTO');
+  }else{
+    client.publish('iot/lampu/mode','MANUAL');
+  }
+
+  setTimeout(()=>{
+    client.publish('iot/lampu/requestStatus','REQ');
+  },300);
 }
+
+
+function updateAutoButton(){
+  const btn = document.querySelector("button[onclick='setAuto()']");
+
+  if(autoAktif){
+    btn.style.background = 'rgba(0,255,100,.25)';
+    btn.style.borderColor = '#00ff64';
+    btn.style.color = '#00ff64';
+    btn.innerText = 'AUTO AKTIF';
+  }else{
+    btn.style.background = 'rgba(255,80,80,.25)';
+    btn.style.borderColor = '#ff5252';
+    btn.style.color = '#ff5252';
+    btn.innerText = 'AUTO MATI';
+  }
+}
+
 
 function enableButtons(enable){
   document.querySelectorAll('.btn-control').forEach(btn=>{
@@ -331,6 +377,17 @@ function enableButtons(enable){
 }
 enableButtons(false);
 
+function resetWiFi(){
+  if(confirm("Reset WiFi ESP?\nESP akan restart dan masuk mode setup.")){
+    client.publish('iot/lampu/wifiReset','RESET');
+
+    document.getElementById('espStatus').innerText =
+      'ESP: Reset WiFi...';
+
+    document.getElementById('espStatus').classList.remove('esp-online');
+    document.getElementById('espStatus').classList.add('esp-offline');
+  }
+}
 
 </script>
 </body>
