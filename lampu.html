@@ -185,6 +185,88 @@ footer{
   transform:scale(1.15);
 }
 
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  visibility:hidden;
+  transition:.3s;
+  z-index:20;
+}
+
+.modal-overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+
+.modal-box{
+  width:320px;
+  background:rgba(10,25,45,.95);
+  border:2px solid #00eaff;
+  border-radius:14px;
+  padding:22px;
+  text-align:center;
+  box-shadow:0 0 25px rgba(0,234,255,.3);
+}
+
+.modal-box h3{
+  color:#00eaff;
+  margin-bottom:10px;
+}
+
+.modal-box p{
+  font-size:14px;
+  opacity:.85;
+  margin-bottom:15px;
+}
+
+.modal-box input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:2px solid #00eaff;
+  background:transparent;
+  color:#00eaff;
+  text-align:center;
+  outline:none;
+  margin-bottom:15px;
+}
+
+.modal-actions{
+  display:flex;
+  gap:10px;
+}
+
+.modal-actions button{
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+  border:none;
+}
+
+.btn-cancel{
+  background:rgba(255,80,80,.25);
+  color:#ff5252;
+  border:2px solid #ff5252;
+}
+
+.btn-confirm{
+  background:rgba(0,255,100,.25);
+  color:#00ff64;
+  border:2px solid #00ff64;
+}
+
+
 </style>
 </head>
 
@@ -202,6 +284,25 @@ Kontrol Lampu
 <a href="#">Kontrol Lampu</a>
 </div>
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<!-- ===== MODAL RESET WIFI ===== -->
+<div class="modal-overlay" id="wifiModal">
+  <div class="modal-box">
+    <h3>Reset WiFi ESP</h3>
+    <p>
+      ESP akan restart dan masuk mode setup.<br>
+      Masukkan sandi untuk melanjutkan.
+    </p>
+
+    <input type="password" id="wifiPin" placeholder="Masukkan sandi">
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeWifiModal()">Batal</button>
+      <button class="btn-confirm" onclick="confirmResetWiFi()">Reset</button>
+    </div>
+  </div>
+</div>
+
 
 <main>
 <img id="lampIcon" class="lamp-img" src="lampu.png">
@@ -377,17 +478,40 @@ function enableButtons(enable){
 }
 enableButtons(false);
 
-function resetWiFi(){
-  if(confirm("Reset WiFi ESP?\nESP akan restart dan masuk mode setup.")){
-    client.publish('iot/lampu/wifiReset','RESET');
 
-    document.getElementById('espStatus').innerText =
-      'ESP: Reset WiFi...';
+const WIFI_RESET_PIN = "1234";
 
-    document.getElementById('espStatus').classList.remove('esp-online');
-    document.getElementById('espStatus').classList.add('esp-offline');
+function confirmResetWiFi(){
+  const pin = document.getElementById('wifiPin').value;
+
+  if(pin !== WIFI_RESET_PIN){
+    alert("❌ Sandi salah!");
+    return;
   }
+
+  // kirim perintah reset ke ESP
+  client.publish('iot/lampu/wifiReset','RESET');
+
+  document.getElementById('espStatus').innerText =
+    'ESP: Reset WiFi...';
+
+  document.getElementById('espStatus').classList.remove('esp-online');
+  document.getElementById('espStatus').classList.add('esp-offline');
+
+  closeWifiModal();
+
+  alert("✅ Reset WiFi berhasil.\nSilakan connect ke ESP32-Setup");
 }
+
+function resetWiFi(){
+  document.getElementById('wifiModal').classList.add('active');
+  document.getElementById('wifiPin').value = '';
+}
+
+function closeWifiModal(){
+  document.getElementById('wifiModal').classList.remove('active');
+}
+
 
 </script>
 </body>
