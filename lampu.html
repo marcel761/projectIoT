@@ -303,6 +303,17 @@ Kontrol Lampu
   </div>
 </div>
 
+<!-- MODAL SUKSES RESET WIFI -->
+<div class="modal-overlay" id="wifiSuccessModal">
+  <div class="modal-box">
+    <h3>✅ Reset Berhasil</h3>
+    <p>ESP telah masuk mode setup.<br>Silakan connect ke <b>ESP32-Setup</b></p>
+    <div class="modal-actions">
+      <button class="btn-confirm" onclick="closeWifiSuccessModal()">OK</button>
+    </div>
+  </div>
+</div>
+
 
 <main>
 <img id="lampIcon" class="lamp-img" src="lampu.png">
@@ -500,8 +511,13 @@ function confirmResetWiFi(){
 
   closeWifiModal();
 
-  alert("✅ Reset WiFi berhasil.\nSilakan connect ke ESP32-Setup");
+  // ❌ HAPUS alert lama
+  // alert("✅ Reset WiFi berhasil.\nSilakan connect ke ESP32-Setup");
+
+  // Gunakan modal cantik
+  showWifiSuccessModal();
 }
+
 
 function resetWiFi(){
   document.getElementById('wifiModal').classList.add('active');
@@ -512,8 +528,16 @@ function closeWifiModal(){
   document.getElementById('wifiModal').classList.remove('active');
 }
 
+function showWifiSuccessModal(){
+  document.getElementById('wifiSuccessModal').classList.add('active');
+}
+
+function closeWifiSuccessModal(){
+  document.getElementById('wifiSuccessModal').classList.remove('active');
+}
+
+
 
 </script>
 </body>
 </html>
-
