@@ -223,11 +223,15 @@ function toggleMenu() {
     sidebar.style.left = "0px";
     overlay.classList.add("active");
   }
+
+  if(sessionStorage.getItem("isLogin") === "true"){
+  window.location.replace("dashboard.html");
+}
 }
 function goDashboard() {
   document.getElementById("loader").classList.add("active");
   setTimeout(() => {
-    window.location.href = "login.html";
+    window.location.replace("login.html");
   }, 1600); // durasi loading 1.6 detik
 }
 </script>
@@ -235,7 +239,6 @@ function goDashboard() {
   <div class="neon-loader"></div>
 </div>
 <script>
-sessionStorage.removeItem("isLogin");
 </script>
 
 </body>
