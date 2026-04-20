@@ -262,10 +262,6 @@ body {
   </div>
 </div>
 <script>
-// AUTO REDIRECT kalau sudah login
-if(sessionStorage.getItem("isLogin") === "true"){
-  window.location.replace("dasboard.html");
-}
 
 function login(){
   let user = document.getElementById("username").value;
@@ -297,10 +293,6 @@ function login(){
   }
 }
 
-// CEGAH BACK KE LOGIN
-if(sessionStorage.getItem("isLogin") === "true"){
-  window.location.replace("dasboard.html");
-}
 function togglePass(){
   let input = document.getElementById("password");
   let icon = document.getElementById("eyeIcon");
