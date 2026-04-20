@@ -224,9 +224,6 @@ function toggleMenu() {
     overlay.classList.add("active");
   }
 
-  if(sessionStorage.getItem("isLogin") === "true"){
-  window.location.replace("dashboard.html");
-}
 }
 function goDashboard() {
   document.getElementById("loader").classList.add("active");
@@ -234,12 +231,21 @@ function goDashboard() {
     window.location.href = "login.html";
   }, 1600); // durasi loading 1.6 detik
 }
+
+if(sessionStorage.getItem("isLogin") === "true"){
+  window.location.replace("dashboard.html");
+}
+window.addEventListener("pageshow", function () {
+  document.getElementById("loader").classList.remove("active");
+});
+
+window.addEventListener("load", function () {
+  document.getElementById("loader").classList.remove("active");
+});
 </script>
 <div class="loader-bg" id="loader">
   <div class="neon-loader"></div>
 </div>
-<script>
-</script>
 
 </body>
 </html>
