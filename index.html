@@ -227,13 +227,16 @@ function toggleMenu() {
 function goDashboard() {
   document.getElementById("loader").classList.add("active");
   setTimeout(() => {
-    window.location.href = "dasboard.html";
+    window.location.href = "login.html";
   }, 1600); // durasi loading 1.6 detik
 }
 </script>
 <div class="loader-bg" id="loader">
   <div class="neon-loader"></div>
 </div>
+<script>
+sessionStorage.removeItem("isLogin");
+</script>
 
 </body>
 </html>
