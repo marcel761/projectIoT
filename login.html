@@ -257,7 +257,7 @@ body {
 <script>
 // AUTO REDIRECT kalau sudah login
 if(sessionStorage.getItem("isLogin") === "true"){
-  window.location.href = "dasboard.html";
+  window.location.replace("dasboard.html");
 }
 
 function login(){
@@ -288,6 +288,11 @@ function login(){
     err.innerText = "Username atau Password salah!";
     err.style.display = "block";
   }
+}
+
+// CEGAH BACK KE LOGIN
+if(sessionStorage.getItem("isLogin") === "true"){
+  window.location.replace("dasboard.html");
 }
 function togglePass(){
   let input = document.getElementById("password");
