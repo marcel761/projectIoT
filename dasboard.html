@@ -203,6 +203,10 @@ function toggleMenu() {
   }
 }
 </script>
-
+<script>
+if(sessionStorage.getItem("isLogin") !== "true"){
+  window.location.href = "login.html";
+}
+</script>
 </body>
 </html>
