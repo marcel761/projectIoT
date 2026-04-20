@@ -11,10 +11,11 @@
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
 
   body {
-    height:100vh; display:flex; flex-direction:column;
-    background: radial-gradient(circle at top, #042a52, #020b14);
-    color:white;
-  }
+  height:100vh; 
+  overflow:hidden; /* ⛔ penting */
+  background: radial-gradient(circle at top, #042a52, #020b14);
+  color:white;
+}
 
  /* HEADER FIXED */
 header {
@@ -82,14 +83,22 @@ header {
 
 /* MAIN SCROLL ONLY */
 main {
-  margin-top: 60px;
-  margin-bottom: 50px;
-  height: calc(100vh - 110px);
+  position: fixed;
+  top: 60px;
+  bottom: 50px;
+  left: 0;
+  right: 0;
+
   overflow-y: auto;
   padding:15px;
-  display:flex; flex-direction:column;
-  justify-content:center; align-items:center;
+
+  display:flex; 
+  flex-direction:column;
+  justify-content: flex-start; 
+  align-items:center;
   text-align:center;
+
+  scroll-behavior: smooth; /* optional tapi keren */
 }
 
 /* FOOTER FIXED */
