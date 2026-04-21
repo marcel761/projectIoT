@@ -205,10 +205,17 @@ body {
   <label>Password</label>
   <div style="position:relative;">
     <input type="password" id="password" placeholder="Masukkan password">
-    <span onclick="togglePass()" 
-      style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">
-      
-    </span>
+    <img id="eyeIcon" onclick="togglePass()" 
+  src="eyee.png"
+  style="
+    position:absolute; 
+    right:10px; 
+    top:50%; 
+    transform:translateY(-50%);
+    cursor:pointer;
+    width:22px;
+    height:22px;
+  ">
   </div>
 </div>
 
@@ -300,10 +307,10 @@ function togglePass(){
 
   if(input.type === "password"){
     input.type = "text";
-    icon.innerText = "🙈"; // mata ketutup (slash effect)
+    icon.src = "eyeslash.png";
   } else {
     input.type = "password";
-    icon.innerText = "👁️";
+    icon.src = "eyee.png";
   }
 }
 
