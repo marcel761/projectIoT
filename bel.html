@@ -359,13 +359,6 @@ footer{
   <option>Pulang Sekolah</option>
 </select>
 
-<label>Jumlah Bunyi (opsional):</label>
-<select id="jumlahBunyi">
-  <option value="1">1x</option>
-  <option value="2">2x</option>
-  <option value="3">3x</option>
-</select>
-
 <input type="text" id="namaKegiatan" placeholder="Atau ketik sendiri...">
 
 <button class="btn-add" onclick="tambahJadwal()">
@@ -429,15 +422,12 @@ function tambahJadwal() {
     return;
   }
 
-let jumlahBunyi = document.getElementById("jumlahBunyi").value;
-
-let data = {
-  hari,
-  tanggal,
-  jam,
-  kegiatan,
-  jumlahBunyi: parseInt(jumlahBunyi)
-};
+  let data = {
+    hari,
+    tanggal,
+    jam,
+    kegiatan
+  };
 
   if(editIndex === -1){
     jadwalBel.push(data);
@@ -554,15 +544,11 @@ function editJadwal(index){
 
   document.getElementById("preset").value = "";
 
-  document.getElementById("jumlahBunyi").value = data.jumlahBunyi || 1;
-
   editIndex = index;
 
 
   document.querySelector(".btn-add").innerText =
     "✔ Simpan Perubahan";
-  
-    
 }
 
 function resetForm(){
@@ -572,7 +558,6 @@ function resetForm(){
   document.getElementById("jamBel").value = "";
   document.getElementById("preset").value = "";
   document.getElementById("namaKegiatan").value = "";
-  document.getElementById("jumlahBunyi").value = "1";
 }
 
 function updateClock() {
