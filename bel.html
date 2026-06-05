@@ -275,7 +275,20 @@ footer{
   font-weight: 700;
   text-shadow: 0 0 10px #00ff66;
 }
+.status-menunggu{
+  color:#ffc107;
+  font-weight:700;
+}
 
+.status-berlangsung{
+  color:#00eaff;
+  font-weight:700;
+}
+
+.status-selesai{
+  color:#00ff66;
+  font-weight:700;
+}
 </style>
 </head>
 
@@ -371,11 +384,12 @@ footer{
 <div class="card table-wrap">
 <table id="tabelJadwal">
   <tr>
-    <th>Hari</th>
-    <th>Tanggal</th>
-    <th>Jam</th>
-    <th>Kegiatan</th>
-    <th>Aksi</th>
+<th>Hari</th>
+<th>Tanggal</th>
+<th>Jam</th>
+<th>Kegiatan</th>
+<th>Status</th>
+<th>Aksi</th>
   </tr>
 </table>
 </div>
@@ -423,11 +437,12 @@ function tambahJadwal() {
   }
 
   let data = {
-    hari,
-    tanggal,
-    jam,
-    kegiatan
-  };
+  hari,
+  tanggal,
+  jam,
+  kegiatan,
+  status: "Menunggu"
+};
 
   if(editIndex === -1){
     jadwalBel.push(data);
@@ -473,11 +488,24 @@ function tampilkanData(){
       <th>Tanggal</th>
       <th>Jam</th>
       <th>Kegiatan</th>
+      <th>Status</th>
       <th>Aksi</th>
     </tr>
   `;
 
   jadwalBel.forEach((data,i)=>{
+   
+  let warnaStatus = "";
+
+  if(data.status === "Menunggu"){
+    warnaStatus = "status-menunggu";
+  }
+  else if(data.status === "Berlangsung"){
+    warnaStatus = "status-berlangsung";
+  }
+  else if(data.status === "Selesai"){
+    warnaStatus = "status-selesai";
+  }
 
     tabel.innerHTML += `
       <tr>
@@ -486,7 +514,11 @@ function tampilkanData(){
         <td>${data.jam}</td>
         <td>${data.kegiatan}</td>
 
-        <td>
+<td class="${warnaStatus}">
+  ${data.status || "Menunggu"}
+</td>
+
+<td>
           <button class="btn-del btn-hapus"
           onclick="hapusJadwal(${i})">
           Hapus
@@ -592,8 +624,12 @@ mqttClient.on("connect", () => {
   console.log("MQTT Connected");
 
   mqttClient.subscribe(
-    "sekolah/bel/status/esp"
-  );
+  "sekolah/bel/status/esp"
+);
+
+mqttClient.subscribe(
+  "sekolah/bel/status/jadwal"
+);
 
   mqttClient.publish(
     "sekolah/bel/status/request",
@@ -626,6 +662,43 @@ mqttClient.on("message", (topic, message) => {
     }
 
   }
+
+  if(topic === "sekolah/bel/status/jadwal"){
+
+  let pesan = message.toString();
+
+  if(pesan.startsWith("SELESAI|")){
+
+    let kegiatan =
+      pesan.replace("SELESAI|","");
+
+    jadwalBel.forEach(item=>{
+
+      if(item.kegiatan === kegiatan){
+        item.status = "Selesai";
+      }
+
+    });
+
+  }else{
+
+    jadwalBel.forEach(item=>{
+
+      if(item.kegiatan === pesan){
+        item.status = "Berlangsung";
+      }
+
+    });
+
+  }
+
+  localStorage.setItem(
+    "jadwalBel",
+    JSON.stringify(jadwalBel)
+  );
+
+  tampilkanData();
+}
 
 });
 
