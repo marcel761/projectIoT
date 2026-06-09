@@ -605,6 +605,7 @@ function updateClock() {
 
 setInterval(updateClock, 1000);
 updateClock();
+enableForm(false);
 </script>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script>
@@ -636,7 +637,36 @@ mqttClient.subscribe(
     "GET_STATUS"
   );
 
+  mqttClient.subscribe(
+  "sekolah/bel/jadwal/sync"
+);
+
+mqttClient.publish(
+  "sekolah/bel/jadwal/request",
+  "GET_DATA"
+);
+
 });
+
+function enableForm(enable){
+
+  document.getElementById("hari").disabled = !enable;
+  document.getElementById("tanggalBel").disabled = !enable;
+  document.getElementById("jamBel").disabled = !enable;
+  document.getElementById("preset").disabled = !enable;
+  document.getElementById("namaKegiatan").disabled = !enable;
+
+  const btn =
+    document.querySelector(".btn-add");
+
+  btn.disabled = !enable;
+
+  btn.style.opacity =
+    enable ? "1" : "0.4";
+
+  btn.style.cursor =
+    enable ? "pointer" : "not-allowed";
+}
 
 let lastUpdate = Date.now();
 mqttClient.on("message", (topic, message) => {
@@ -653,15 +683,39 @@ mqttClient.on("message", (topic, message) => {
       espStatus.innerHTML = "AKTIF";
       espStatus.style.color = "#00ff66";
       espStatus.style.textShadow = "0 0 10px #00ff66";
+
+      enableForm(true);
     }
 
     if(data === "OFFLINE"){
       espStatus.innerHTML = "TIDAK AKTIF";
       espStatus.style.color = "red";
       espStatus.style.textShadow = "0 0 10px red";
+
+      enableForm(false);
     }
 
   }
+
+  if(topic === "sekolah/bel/jadwal/sync"){
+
+  let dataSync =
+    JSON.parse(message.toString());
+
+  jadwalBel =
+    dataSync.data || [];
+
+  localStorage.setItem(
+    "jadwalBel",
+    JSON.stringify(jadwalBel)
+  );
+
+  tampilkanData();
+
+  console.log(
+    "Jadwal berhasil disinkronkan"
+  );
+}
 
   if(topic === "sekolah/bel/status/jadwal"){
 
@@ -709,6 +763,8 @@ setInterval(() => {
     espStatus.innerHTML = "TIDAK AKTIF";
     espStatus.style.color = "red";
     espStatus.style.textShadow = "0 0 10px red";
+
+    enableForm(false);
   }
 
 }, 2000);
