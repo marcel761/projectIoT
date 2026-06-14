@@ -289,18 +289,121 @@ footer{
   color:#00ff66;
   font-weight:700;
 }
+
+.wifi-icon{
+  position:absolute;
+  right:15px;
+  cursor:pointer;
+  font-size:22px;
+  color:#00eaff;
+  transition:.3s;
+}
+
+.wifi-icon:hover{
+  color:#ff5252;
+  transform:scale(1.15);
+}
+
+.modal-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  visibility:hidden;
+  transition:.3s;
+  z-index:50;
+}
+
+.modal-overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+
+.modal-box{
+  width:320px;
+  background:rgba(10,25,45,.95);
+  border:2px solid #00eaff;
+  border-radius:14px;
+  padding:22px;
+  text-align:center;
+  box-shadow:0 0 25px rgba(0,234,255,.3);
+}
+
+.modal-box h3{
+  color:#00eaff;
+  margin-bottom:10px;
+}
+
+.modal-box p{
+  margin-bottom:15px;
+}
+
+.modal-box input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:2px solid #00eaff;
+  background:transparent;
+  color:#00eaff;
+  text-align:center;
+  outline:none;
+  margin-bottom:15px;
+}
+
+.modal-actions{
+  display:flex;
+  gap:10px;
+}
+
+.modal-actions button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.btn-cancel{
+  background:#ff1744;
+  color:white;
+}
+
+.btn-confirm{
+  background:#00ff66;
+  color:black;
+  font-weight:700;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
+
   <div class="hamburger" onclick="toggleMenu()">
     <span></span>
     <span></span>
     <span></span>
   </div>
+
   BEL OTOMATIS
+
+  <div
+    class="wifi-icon"
+    onclick="resetWiFi()"
+    title="Reset WiFi ESP">
+
+    🛜
+
+  </div>
+
 </header>
 
 <div class="sidebar" id="sidebar">
@@ -313,6 +416,86 @@ footer{
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<!-- MODAL RESET WIFI -->
+
+<div class="modal-overlay" id="wifiModal">
+
+  <div class="modal-box">
+
+    <h3>Reset WiFi ESP</h3>
+
+    <p>
+      ESP akan restart dan masuk mode setup.
+      <br>
+      Masukkan password:
+    </p>
+
+    <input
+      type="password"
+      id="wifiPin"
+      placeholder="Masukkan Password">
+
+    <div class="modal-actions">
+
+      <button
+        class="btn-cancel"
+        onclick="closeWifiModal()">
+
+        Batal
+
+      </button>
+
+      <button
+        class="btn-confirm"
+        onclick="confirmResetWiFi()">
+
+        Reset
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div
+  class="modal-overlay"
+  id="wifiSuccessModal">
+
+  <div class="modal-box">
+
+    <h3>✅ Reset Berhasil</h3>
+
+    <p>
+
+      ESP akan restart.
+
+      <br><br>
+
+      MASUK KE WIFI
+      <br><br>
+
+      <b>ESP32-BEL-SETUP</b>
+
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+        class="btn-confirm"
+        onclick="closeWifiSuccessModal()">
+
+        OK
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
 <main>
 
@@ -340,7 +523,6 @@ footer{
     00:00:00
   </span>
 </div>
-
 </div>
 <!-- FORM -->
 <div class="card">
@@ -457,7 +639,10 @@ function tambahJadwal() {
   "jadwalBel",
   JSON.stringify(jadwalBel)
 );
-
+  console.log(
+    "KIRIM MQTT:",
+    JSON.stringify(jadwalBel)
+  );
 // kirim ke ESP32 via MQTT
 // kirim ke ESP32 via MQTT (UPDATE DATA)
 if (mqttClient.connected) {
@@ -592,6 +777,62 @@ function resetForm(){
   document.getElementById("namaKegiatan").value = "";
 }
 
+const WIFI_RESET_PIN = "1234";
+
+function resetWiFi(){
+
+  document
+    .getElementById("wifiModal")
+    .classList.add("active");
+
+  document
+    .getElementById("wifiPin")
+    .value = "";
+}
+
+function closeWifiModal(){
+
+  document
+    .getElementById("wifiModal")
+    .classList.remove("active");
+}
+
+function confirmResetWiFi(){
+
+  const pin =
+    document.getElementById("wifiPin").value;
+
+  if(pin !== WIFI_RESET_PIN){
+
+    alert("Password salah!");
+
+    return;
+  }
+
+  mqttClient.publish(
+    "sekolah/bel/wifiReset",
+    "RESET"
+  );
+
+  closeWifiModal();
+
+  showWifiSuccessModal();
+}
+
+function showWifiSuccessModal(){
+
+  document
+    .getElementById("wifiSuccessModal")
+    .classList.add("active");
+}
+
+function closeWifiSuccessModal(){
+
+  document
+    .getElementById("wifiSuccessModal")
+    .classList.remove("active");
+}
+
 function updateClock() {
   const now = new Date();
 
@@ -610,6 +851,8 @@ enableForm(false);
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script>
 
+
+const TOPIC_WIFI_RESET ="sekolah/bel/wifiReset";
 const TOPIC_JADWAL = "sekolah/bel/jadwal/update";
 /* STATUS ESP32 */
 
@@ -699,6 +942,11 @@ mqttClient.on("message", (topic, message) => {
 
   if(topic === "sekolah/bel/jadwal/sync"){
 
+  console.log(
+  "DATA DARI ESP:",
+  message.toString()
+);
+
   let dataSync =
     JSON.parse(message.toString());
 
@@ -716,44 +964,6 @@ mqttClient.on("message", (topic, message) => {
     "Jadwal berhasil disinkronkan"
   );
 }
-
-  if(topic === "sekolah/bel/status/jadwal"){
-
-  let pesan = message.toString();
-
-  if(pesan.startsWith("SELESAI|")){
-
-    let kegiatan =
-      pesan.replace("SELESAI|","");
-
-    jadwalBel.forEach(item=>{
-
-      if(item.kegiatan === kegiatan){
-        item.status = "Selesai";
-      }
-
-    });
-
-  }else{
-
-    jadwalBel.forEach(item=>{
-
-      if(item.kegiatan === pesan){
-        item.status = "Berlangsung";
-      }
-
-    });
-
-  }
-
-  localStorage.setItem(
-    "jadwalBel",
-    JSON.stringify(jadwalBel)
-  );
-
-  tampilkanData();
-}
-
 });
 
 setInterval(() => {
@@ -771,4 +981,4 @@ setInterval(() => {
 
 </script>
 </body>
-</html>
+  </html>
